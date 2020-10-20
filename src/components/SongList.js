@@ -7,38 +7,40 @@ import {
   Typography,
   IconButton,
   CardActions,
-  makeStyles,
+  makeStyles
 } from "@material-ui/core";
 import { PlayArrow, Save } from "@material-ui/icons";
+import { useSubscription } from "@apollo/client";
+import { GET_SONGS } from "../graphql/subscriptions";
 
 function SongList() {
-  let loading = false;
+  const { data, loading, error } = useSubscription(GET_SONGS);
 
-   const useStyles = makeStyles((theme) => ({
-     container: {
-       margin: theme.spacing(3),
-     },
-     songInfoContainer: {
-       display: "flex",
-       alignItems: "center",
-     },
-     songInfo: {
-       width: "100%",
-       display: "flex",
-       justifyContent: "space-between",
-     },
-     thumbnail: {
-       objectFit: "cover",
-       width: 140,
-       height: 140,
-     },
-   }));
+  const useStyles = makeStyles(theme => ({
+    container: {
+      margin: theme.spacing(3)
+    },
+    songInfoContainer: {
+      display: "flex",
+      alignItems: "center"
+    },
+    songInfo: {
+      width: "100%",
+      display: "flex",
+      justifyContent: "space-between"
+    },
+    thumbnail: {
+      objectFit: "cover",
+      width: 140,
+      height: 140
+    }
+  }));
 
-  const song = {
-    title: "Think Less",
-    artist: "Thank",
-    thumbnail: "http://i3.ytimg.com/vi/QQnhpIRgzFM/hqdefault.jpg",
-  };
+  // const song = {
+  //   title: "Think Less",
+  //   artist: "Thank",
+  //   thumbnail: "http://i3.ytimg.com/vi/QQnhpIRgzFM/hqdefault.jpg"
+  // };
 
   if (loading) {
     return (
@@ -47,7 +49,7 @@ function SongList() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          marginTop: 50,
+          marginTop: 50
         }}
       >
         <CircularProgress />
@@ -55,16 +57,20 @@ function SongList() {
     );
   }
 
+  if (error) {
+    return <div>Error fetching songs</div>;
+  }
+
   return (
     <div>
-      {Array.from({ length: 10 }, () => song).map((song, i) => (
-        <Song key={i} song={song} />
+      {data.songs.map(song => (
+        <Song key={song.id} song={song} />
       ))}
     </div>
   );
 
   function Song({ song }) {
-    const classes = useStyles()
+    const classes = useStyles();
     const { title, artist, thumbnail } = song;
 
     return (
